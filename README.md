@@ -16,7 +16,7 @@
 
 ## Overview
 
-VibeSec is an open-source project created by [Untamed Theory](https://untamed.cloud) that makes new wave of AI development practices more secure across different AI coding tools. It provides a comprehensive set of security rules for both Windsurf and Cursor AI assistants to help developers write more secure code, following industry best practices.
+VibeSec is an open-source project created by [Untamed Theory](https://untamed.cloud) that makes the new wave of AI development practices more secure across different AI coding tools. It provides a comprehensive set of security rules for both Windsurf and Cursor AI assistants to help developers write more secure code, following industry best practices.
 
 ### 🛡️ Current Features:
 
@@ -33,10 +33,14 @@ Apply VibeSec to your project with a single command:
 ```bash
 # Auto-detect environment (defaults to Windsurf if detection fails)
 curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash
+```
 
+```bash
 # Force Cursor installation
 curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash -s -- --cursor
+```
 
+```bash
 # Force Windsurf installation
 curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash -s -- --windsurf
 ```

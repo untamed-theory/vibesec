@@ -6,12 +6,12 @@
 set -e
 
 echo "🛡️ VibeSec - Security rules for AI code assistants"
-echo "Detecting your environment..."
 
 # GitHub repository information
 GITHUB_REPO="untamed-theory/vibesec"
 GITHUB_BRANCH="main"
 TEMP_DIR="$(mktemp -d)"
+ENV_TYPE=0 # Default value, will be updated based on detection
 
 # Clean up temporary directory on exit
 cleanup() {
@@ -20,36 +20,56 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Echo to stderr for easier debugging when piped
+debug_echo() {
+  echo "$@" >&2
+}
+
 # Function to detect which AI assistant is being used
 detect_environment() {
+  echo "Detecting your environment..."
+  
   # Check for Cursor-specific files/folders
   if [ -d ".cursor" ] || [ -f ".cursor.config" ]; then
     echo "✅ Cursor environment detected"
-    return 1
+    ENV_TYPE=1
+    return 0
   fi
 
   # Check for Windsurf-specific files/folders
   if [ -d ".windsurf" ]; then
     echo "✅ Windsurf environment detected"
-    return 2
+    ENV_TYPE=2
+    return 0
   fi
 
-  # If no specific environment detected, ask user
+  # If no automatic detection, use a default (Windsurf) for non-interactive environments
+  # but provide instructions for manual installation
   echo "❓ Could not automatically detect your AI coding assistant."
-  echo "Which AI assistant are you using?"
-  echo "1) Cursor"
-  echo "2) Windsurf"
-  read -p "Enter number (1/2): " choice
   
-  # Validate that choice is a number (1 or 2)
-  if [ "$choice" = "1" ]; then
-    return 1
-  elif [ "$choice" = "2" ]; then
-    return 2
+  # Check if we can read from stdin in an interactive way
+  if [ -t 0 ]; then
+    # We're in an interactive terminal, ask the user
+    echo "Which AI assistant are you using?"
+    echo "1) Cursor"
+    echo "2) Windsurf"
+    read -p "Enter number (1/2) [Default: 2]: " choice
+    
+    # Validate that choice is a number (1 or 2)
+    if [ "$choice" = "1" ]; then
+      ENV_TYPE=1
+    else
+      # Default to Windsurf for anything other than explicit "1"
+      ENV_TYPE=2
+    fi
   else
-    echo "❌ Invalid selection. Defaulting to Windsurf."
-    return 2
+    # We're not in an interactive terminal (e.g., piped from curl)
+    echo "Non-interactive environment detected. Defaulting to Windsurf."
+    echo "If you're using Cursor, please run: curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash -s -- --cursor"
+    ENV_TYPE=2
   fi
+  
+  return 0
 }
 
 # Download rules from GitHub
@@ -62,6 +82,7 @@ download_rules() {
     git clone --depth 1 --filter=blob:none --sparse https://github.com/${GITHUB_REPO}.git "$TEMP_DIR/vibesec"
     cd "$TEMP_DIR/vibesec"
     git sparse-checkout set windsurf cursor
+    cd - > /dev/null # Return to original directory silently
   else
     echo "Git not found, using curl to download..."
     # Download and extract specific directories using GitHub API
@@ -108,13 +129,33 @@ install_rules() {
   fi
 }
 
+# Process command line arguments
+for arg in "$@"
+do
+  case $arg in
+    --cursor)
+      ENV_TYPE=1
+      echo "Cursor installation specified via command line"
+      shift
+      ;;
+    --windsurf)
+      ENV_TYPE=2
+      echo "Windsurf installation specified via command line"
+      shift
+      ;;
+  esac
+done
+
 # Main script execution
 download_rules
-detect_environment
-env_type=$?
+
+# Only detect environment if not explicitly set via command line
+if [ "$ENV_TYPE" -eq 0 ]; then
+  detect_environment
+fi
 
 # Install rules based on detected environment
-install_rules $env_type
+install_rules $ENV_TYPE
 
 echo ""
 echo "🔒 VibeSec has been installed!"
