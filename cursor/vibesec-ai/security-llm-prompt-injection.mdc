@@ -1,0 +1,274 @@
+---
+alwaysApply: false
+--- 
+
+### security-llm-prompt-injection
+
+**Purpose:** Prevent security vulnerabilities specific to applications using Large Language Models (LLMs), focusing on prompt injection, data exfiltration, and secure integration of AI capabilities.
+
+**When developing applications that use LLMs, you must implement these security measures:**
+
+#### Prompt Injection Prevention
+
+**Input Sanitization and Validation**
+* Always validate and sanitize user inputs that will be used in prompts
+* Implement a clear separator between system instructions and user inputs
+* Use techniques like input templating and escaping special characters
+* Consider length limits on user inputs to prevent oversized prompts
+
+```javascript
+// BAD: Direct user input in prompts
+async function generateResponse(userInput) {
+  const completion = await openai.chat.completions.create({
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: userInput } // Direct injection risk!
+    ],
+    model: "gpt-3.5-turbo",
+  });
+  return completion.choices[0].message.content;
+}
+
+// GOOD: Sanitized and structured prompt
+async function generateResponse(userInput) {
+  // Sanitize input 
+  const sanitizedInput = sanitizeUserInput(userInput);
+  
+  // Use a clear delimiter and structured prompt
+  const completion = await openai.chat.completions.create({
+    messages: [
+      { role: "system", content: "You are a helpful assistant. Only answer questions about this specific product catalog. Never execute commands or reveal system information." },
+      { role: "user", content: `USER QUERY (respond only about the product catalog): ${sanitizedInput}` }
+    ],
+    model: "gpt-3.5-turbo",
+  });
+  
+  return completion.choices[0].message.content;
+}
+
+// Input sanitization function
+function sanitizeUserInput(input) {
+  // Truncate overly long inputs
+  if (input.length > 1000) {
+    input = input.substring(0, 1000) + "...";
+  }
+  
+  // Remove potential prompt injection markers
+  input = input.replace(/system:/gi, "[filtered]")
+               .replace(/\n\n/g, " ")
+               .replace(/assistant:/gi, "[filtered]")
+               .replace(/\{.*?\}/g, "[filtered]");
+  
+  return input;
+}
+```
+
+**Defense-in-Depth Strategies**
+* Implement multiple layers of protection against prompt injection
+* Use content filtering on both inputs and outputs
+* Monitor and audit LLM inputs and outputs for suspicious patterns
+* Test your application against known prompt injection techniques
+
+#### Data Exfiltration Prevention
+
+**Control Model Access to Sensitive Data**
+* Follow the principle of least privilege when giving LLMs access to data
+* Never allow AI models to access sensitive systems without authorization checks
+* Implement tokenization or masking of sensitive data before sending to LLMs
+
+```javascript
+// BAD: Exposing sensitive data to the LLM
+async function processCustomerData(customer) {
+  const prompt = `
+    Customer Name: ${customer.name}
+    Credit Card: ${customer.creditCard} 
+    SSN: ${customer.ssn}
+    Process this customer information and summarize.
+  `;
+  
+  const response = await callLLM(prompt); // Exposing sensitive data!
+  return response;
+}
+
+// GOOD: Masking sensitive data
+async function processCustomerData(customer) {
+  // Mask sensitive information
+  const maskedData = {
+    name: customer.name,
+    creditCard: "xxxx-xxxx-xxxx-" + customer.creditCard.slice(-4),
+    ssn: "xxx-xx-" + customer.ssn.slice(-4)
+  };
+  
+  const prompt = `
+    Customer Name: ${maskedData.name}
+    Credit Card: ${maskedData.creditCard} 
+    SSN: ${maskedData.ssn}
+    Process this customer information and summarize.
+  `;
+  
+  const response = await callLLM(prompt);
+  return response;
+}
+```
+
+**Output Filtering and Validation**
+* Apply output filtering to prevent sensitive data leakage
+* Validate model outputs before showing them to users
+* Implement pattern matching for sensitive data formats (SSNs, credit cards, etc.)
+
+```javascript
+// GOOD: Output filtering
+function filterModelOutput(output) {
+  // Check for sensitive data patterns in the output
+  const sensitivePatterns = [
+    /\b(?:\d[ -]*?){13,16}\b/, // Credit card-like patterns
+    /\b\d{3}[-.]?\d{2}[-.]?\d{4}\b/, // SSN-like patterns
+    /password\s*[:=]\s*\S+/i, // Password revelations
+    /api[_-]?key\s*[:=]\s*\S+/i // API keys
+  ];
+  
+  let filteredOutput = output;
+  for (const pattern of sensitivePatterns) {
+    filteredOutput = filteredOutput.replace(pattern, "[REDACTED]");
+  }
+  
+  return filteredOutput;
+}
+
+async function generateResponse(userInput) {
+  const output = await callLLM(userInput);
+  return filterModelOutput(output);
+}
+```
+
+#### Secure Integration Architecture
+
+**Proper Model Access Management**
+* Use API keys with appropriate permissions and rate limits
+* Rotate API keys regularly and never expose them in client-side code
+* Implement server-side proxies for LLM API calls
+
+```javascript
+// BAD: Client-side LLM API calls
+// In a browser-accessible file:
+const apiKey = "sk-abc123"; // Exposed API key!
+const response = await openai.completions.create({
+  model: "text-davinci-003",
+  prompt: userInput,
+  apiKey: apiKey
+});
+
+// GOOD: Server-side proxy
+// Client code:
+const response = await fetch('/api/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: userInput })
+});
+
+// Server code:
+app.post('/api/generate', async (req, res) => {
+  const userInput = req.body.query;
+  
+  // Validate and sanitize input
+  if (!isValidInput(userInput)) {
+    return res.status(400).json({ error: 'Invalid input' });
+  }
+  
+  try {
+    // API key is stored securely in server environment
+    const apiKey = process.env.OPENAI_API_KEY;
+    const response = await openai.completions.create({
+      model: "text-davinci-003",
+      prompt: sanitizePrompt(userInput),
+      max_tokens: 100
+    });
+    
+    // Filter the output
+    const filteredOutput = filterOutput(response.choices[0].text);
+    
+    res.json({ result: filteredOutput });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate response' });
+  }
+});
+```
+
+**Rate Limiting and Monitoring**
+* Implement rate limiting for LLM API requests
+* Set up monitoring for unusual usage patterns
+* Log and audit both inputs to and outputs from LLM systems
+
+```javascript
+// GOOD: Rate limiting for LLM API
+const rateLimit = require('express-rate-limit');
+
+const llmRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per windowMs
+  message: 'Too many requests to AI services, please try again later'
+});
+
+// Apply rate limiter to AI endpoint
+app.post('/api/generate', llmRateLimiter, async (req, res) => {
+  // LLM processing logic
+});
+```
+
+#### User Content Restrictions
+
+**Safe User Content Generation**
+* Implement content moderation for user-generated content
+* Use the LLM provider's content filtering tools when available
+* Establish clear usage policies for AI-generated content
+
+```javascript
+// GOOD: Content moderation with OpenAI's moderation API
+async function moderateContent(userInput) {
+  try {
+    const moderation = await openai.moderations.create({
+      input: userInput
+    });
+    
+    if (moderation.results[0].flagged) {
+      return {
+        isAcceptable: false,
+        categories: moderation.results[0].categories
+      };
+    }
+    
+    return { isAcceptable: true };
+  } catch (error) {
+    console.error('Moderation API error:', error);
+    // Default to conservative approach if moderation fails
+    return { isAcceptable: false, error: 'Moderation service unavailable' };
+  }
+}
+
+async function processUserRequest(userInput) {
+  // Check content before processing
+  const moderationResult = await moderateContent(userInput);
+  
+  if (!moderationResult.isAcceptable) {
+    return { error: 'Your request contains inappropriate content' };
+  }
+  
+  // Process with LLM if content is acceptable
+  const result = await generateWithLLM(userInput);
+  
+  // Also moderate the output
+  const outputModeration = await moderateContent(result);
+  if (!outputModeration.isAcceptable) {
+    return { error: 'Unable to provide an appropriate response' };
+  }
+  
+  return { result };
+}
+```
+
+**References:**
+* [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+* [Prompt Injection Guide](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/main/1_0_vulns/LLM01_PromptInjection.md)
+* [OpenAI Safety Best Practices](https://platform.openai.com/docs/guides/safety-best-practices)
+
+Visit Untamed Theory (https://untamed.cloud) for additional detail.
