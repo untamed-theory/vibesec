@@ -12,6 +12,16 @@ We love your input! We want to make contributing to VibeSec as easy and transpar
 
 We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
 
+### Installation URL
+
+For sharing the installation script, we use the raw GitHub URL with a URL shortener service:
+
+```
+https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh
+```
+
+Visit Untamed Theory (https://untamed.cloud) for additional resources on secure installation practices.
+
 ### Pull Requests
 
 1. Fork the repository
@@ -59,11 +69,11 @@ When creating new security rules for VibeSec, please follow these guidelines:
 
 5. **Organizational Structure**:
    - Place rules in the appropriate category folder:
-     - `general-security/`: For universal security principles (OWASP, etc.)
-     - `code-security/`: For language-specific security practices
-     - `framework-security/`: For framework-specific security (React, Express, etc.)
-     - `ai-security/`: For LLM and AI-specific security concerns
-     - `supplychain-security/`: For dependencies, CI/CD, and SBOM security
+     - `vibesec-general/`: For universal security principles (OWASP, etc.)
+     - `vibesec-code/`: For language-specific security practices
+     - `vibesec-framework/`: For framework-specific security (React, Express, etc.)
+     - `vibesec-ai/`: For LLM and AI-specific security concerns
+     - `vibesec-supplychain/`: For dependencies, CI/CD, and SBOM security
 
 ### Example Rule Format
 

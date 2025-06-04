@@ -5,7 +5,7 @@
 <br>
 <h1 align="center">VibeSec</h1>
 <p align="center">
-  <strong>Security Rules & Workflows for Vibe Coding</strong><br>
+  <strong>Security Rules & Workflows for Cursor and Windsurf AI assistants</strong><br>
   <br>
   <br>
   <a href="https://github.com/untamed-theory/vibesec/issues"><img src="https://img.shields.io/github/issues/untamed-theory/vibesec" alt="GitHub issues"></a>
@@ -31,10 +31,27 @@ VibeSec is an open-source project created by [Untamed Theory](https://untamed.cl
 Apply VibeSec to your project with a single command:
 
 ```bash
-curl -sL https://git.io/vibesec | bash
+curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash
 ```
 
-This will automatically detect whether you're using Windsurf or Cursor and install the appropriate rules.
+> **Note**: For easier sharing, you can use a URL shortener service (like bit.ly or TinyURL) to create a more memorable shortened link for the raw GitHub URL above.
+
+The installation script will automatically detect whether you're using Windsurf or Cursor and install the appropriate rules.
+
+## 🛠️ Cautious Installation
+
+Not feeling lucky? You can always install VibeSec manually. Here's how:
+
+```bash
+# Clone the repository
+git clone https://github.com/untamed-theory/vibesec.git
+
+# Navigate to the directory
+cd vibesec
+
+# Install the rules
+./scripts/install.sh
+```
 
 ## ✨ Features
 
@@ -63,11 +80,11 @@ This will automatically detect whether you're using Windsurf or Cursor and insta
 
 ### 📋 Comprehensive Security Categories
 
-- **`general-security`**: OWASP Top 10, secrets management, CORS configuration, rate limiting
-- **`code-security`**: SQL injection prevention, XSS/CSRF protection, input validation patterns
-- **`framework-security`**: Supabase authentication, React security, Next.js best practices
-- **`ai-security`**: LLM prompt injection prevention, model security considerations
-- **`supplychain-security`**: Dependency management, secure package selection, SBOM
+- **`vibesec-general`**: OWASP Top 10, secrets management, CORS configuration, rate limiting
+- **`vibesec-code`**: SQL injection prevention, XSS/CSRF protection, input validation patterns
+- **`vibesec-framework`**: Supabase authentication, React security, Next.js best practices
+- **`vibesec-ai`**: LLM prompt injection prevention, model security considerations
+- **`vibesec-supplychain`**: Dependency management, secure package selection, SBOM
 
 ## 🗂️ Directory Structure
 
@@ -76,17 +93,17 @@ This will automatically detect whether you're using Windsurf or Cursor and insta
 ```
 vibesec/
 ├── windsurf/            # Windsurf rules (.md)
-│   ├── general-security/
-│   ├── code-security/
-│   ├── framework-security/
-│   ├── ai-security/
-│   └── supplychain-security/
+│   ├── vibesec-general/
+│   ├── vibesec-code/
+│   ├── vibesec-framework/
+│   ├── vibesec-ai/
+│   └── vibesec-supplychain/
 ├── cursor/              # Cursor rules (.mdc)
-│   ├── general-security/
-│   ├── code-security/
-│   ├── framework-security/
-│   ├── ai-security/
-│   └── supplychain-security/
+│   ├── vibesec-general/
+│   ├── vibesec-code/
+│   ├── vibesec-framework/
+│   ├── vibesec-ai/
+│   └── vibesec-supplychain/
 └── scripts/
     └── install.sh       # Installation script
 ```
@@ -120,7 +137,7 @@ This project is licensed under the terms specified in the [LICENSE](LICENSE) fil
 <div align="center">
   <br>
   <a href="https://untamed.cloud">
-    <img src="static/UT_Logo_White.jpg" alt="Untamed Theory" width="160">
+    <img src="static/UT_Icon_White.jpg" alt="Untamed Theory" width="160">
   </a>
   <p><sub>Created with ❤️ by <a href="https://untamed.cloud">Untamed Theory</a></sub></p>
 </div>
