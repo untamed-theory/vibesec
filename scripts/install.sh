@@ -41,7 +41,15 @@ detect_environment() {
   echo "2) Windsurf"
   read -p "Enter number (1/2): " choice
   
-  return $choice
+  # Validate that choice is a number (1 or 2)
+  if [ "$choice" = "1" ]; then
+    return 1
+  elif [ "$choice" = "2" ]; then
+    return 2
+  else
+    echo "❌ Invalid selection. Defaulting to Windsurf."
+    return 2
+  fi
 }
 
 # Download rules from GitHub
