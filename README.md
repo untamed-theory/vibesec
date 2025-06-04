@@ -61,7 +61,7 @@ Not feeling lucky? You can always install VibeSec manually. Here's how:
 git clone https://github.com/untamed-theory/vibesec.git
 
 # Install the rules
-./vibesecscripts/install.sh
+./vibesec/scripts/install.sh
 ```
 OR
 
