@@ -18,13 +18,17 @@
 
 VibeSec is an open-source project created by [Untamed Theory](https://untamed.cloud) that makes the new wave of AI development practices more secure across different AI coding tools. It provides a comprehensive set of security rules for both Windsurf and Cursor AI assistants to help developers write more secure code, following industry best practices.
 
+### What it does:
+
+- Downloads security rules for Windsurf and Cursor development workspaces. Pretty Simple.
+
 ### 🛡️ Current Features:
 
 - **Supported AI assistants**: Windsurf and Cursor
 - **Industry Standards**: OWASP Top 10 to start (and we'll add more as we go). You can contribute too.
 - **Language-specific**: Security hardening techniques for JavaScript, TypeScript, Python, and more
 - **Framework-focused**: Targeted security recommendations for popular frameworks like React, Next.js, and Supabase
-- **AI-aware**: Special considerations for LLM applications and AI-assisted development
+- **AI-aware**: Special considerations for LLM applications and AI-assisted development. Needs work. Help wanted.
 
 ## 🚀 Quick Install
 
@@ -59,6 +63,9 @@ git clone https://github.com/untamed-theory/vibesec.git
 # Install the rules
 ./vibesecscripts/install.sh
 ```
+OR
+
+Copy and paste the rules wherever and however you want. This is America after all.
 
 ## ✨ Features
 
