@@ -34,7 +34,6 @@ Apply VibeSec to your project with a single command:
 curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash
 ```
 
-> **Note**: For easier sharing, you can use a URL shortener service (like bit.ly or TinyURL) to create a more memorable shortened link for the raw GitHub URL above.
 
 The installation script will automatically detect whether you're using Windsurf or Cursor and install the appropriate rules.
 
@@ -88,27 +87,23 @@ cd vibesec
 
 ## 🗂️ Directory Structure
 
-<div align="center">
-
 ```
 vibesec/
 ├── windsurf/            # Windsurf rules (.md)
-│   ├── vibesec-general/
-│   ├── vibesec-code/
-│   ├── vibesec-framework/
-│   ├── vibesec-ai/
-│   └── vibesec-supplychain/
+│   ├── vibesec-general/     # Universal security principles (OWASP, etc.)
+│   ├── vibesec-code/        # Language-specific security practices
+│   ├── vibesec-framework/   # Framework-specific security (React, Next.js, etc.)
+│   ├── vibesec-ai/          # LLM and AI-specific security concerns
+│   └── vibesec-supplychain/ # Dependencies and supply chain security
 ├── cursor/              # Cursor rules (.mdc)
-│   ├── vibesec-general/
-│   ├── vibesec-code/
-│   ├── vibesec-framework/
-│   ├── vibesec-ai/
-│   └── vibesec-supplychain/
+│   ├── vibesec-general/     # Universal security principles (OWASP, etc.)
+│   ├── vibesec-code/        # Language-specific security practices
+│   ├── vibesec-framework/   # Framework-specific security (React, Next.js, etc.)
+│   ├── vibesec-ai/          # LLM and AI-specific security concerns
+│   └── vibesec-supplychain/ # Dependencies and supply chain security
 └── scripts/
-    └── install.sh       # Installation script
+    └── install.sh        # Installation script
 ```
-
-</div>
 
 ## 👥 Contributing
 
