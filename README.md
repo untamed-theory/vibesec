@@ -1,11 +1,13 @@
-<h1 align="center">VibeSec</h1>
+
 <div align="center">
-  <img src="static/vibesec-banner.png" alt="VibeSec Banner" width="50%">
+  <img src="static/vibesec-banner.png" alt="VibeSec Banner" width="60%">
 </div>
 <br>
-<br>
+<h1 align="center">VibeSec</h1>
 <p align="center">
   <strong>Security Rules & Workflows for Vibe Coding</strong><br>
+  <br>
+  <br>
   <a href="https://github.com/untamed-theory/vibesec/issues"><img src="https://img.shields.io/github/issues/untamed-theory/vibesec" alt="GitHub issues"></a>
   <a href="https://github.com/untamed-theory/vibesec/stargazers"><img src="https://img.shields.io/github/stars/untamed-theory/vibesec" alt="GitHub stars"></a>
   <a href="https://github.com/untamed-theory/vibesec/network"><img src="https://img.shields.io/github/forks/untamed-theory/vibesec" alt="GitHub forks"></a>
@@ -14,11 +16,12 @@
 
 ## Overview
 
-VibeSec is an open-source project created by [Untamed Theory](https://untamed.cloud) that makes vibe coding more secure across different AI coding tools. It provides a comprehensive set of security rules for both Windsurf and Cursor AI assistants to help developers write more secure code, following industry best practices.
+VibeSec is an open-source project created by [Untamed Theory](https://untamed.cloud) that makes new wave of AI development practices more secure across different AI coding tools. It provides a comprehensive set of security rules for both Windsurf and Cursor AI assistants to help developers write more secure code, following industry best practices.
 
-### 🛡️ All security rules implement:
+### 🛡️ Current Features:
 
-- **Industry Standards**: OWASP Top 10, SANS Top 25, and other recognized security guidelines
+- **Supported AI assistants**: Windsurf and Cursor
+- **Industry Standards**: OWASP Top 10 to start (and we'll add more as we go). You can contribute too.
 - **Language-specific**: Security hardening techniques for JavaScript, TypeScript, Python, and more
 - **Framework-focused**: Targeted security recommendations for popular frameworks like React, Next.js, and Supabase
 - **AI-aware**: Special considerations for LLM applications and AI-assisted development
@@ -117,7 +120,7 @@ This project is licensed under the terms specified in the [LICENSE](LICENSE) fil
 <div align="center">
   <br>
   <a href="https://untamed.cloud">
-    <img src="assets/untamed-theory-logo.png" alt="Untamed Theory" width="160">
+    <img src="static/UT_Icon_White.jpg" alt="Untamed Theory" width="160">
   </a>
   <p><sub>Created with ❤️ by <a href="https://untamed.cloud">Untamed Theory</a></sub></p>
 </div>
