@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="static/vibesec-banner.jpg" alt="VibeSec Banner" width="100%">
+  <img src="static/vibesec-banner.png" alt="VibeSec Banner" width="100%">
 </div>
 
 <h1 align="center">VibeSec</h1>
