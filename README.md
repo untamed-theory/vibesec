@@ -120,7 +120,7 @@ This project is licensed under the terms specified in the [LICENSE](LICENSE) fil
 <div align="center">
   <br>
   <a href="https://untamed.cloud">
-    <img src="static/UT_Icon_White.jpg" alt="Untamed Theory" width="160">
+    <img src="static/UT_Logo_White.jpg" alt="Untamed Theory" width="160">
   </a>
   <p><sub>Created with ❤️ by <a href="https://untamed.cloud">Untamed Theory</a></sub></p>
 </div>
