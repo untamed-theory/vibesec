@@ -2,7 +2,8 @@
 <div align="center">
   <img src="static/vibesec-banner.png" alt="VibeSec Banner" width="50%">
 </div>
-
+<br>
+<br>
 <p align="center">
   <strong>Security Rules & Workflows for Vibe Coding</strong><br>
   <a href="https://github.com/untamed-theory/vibesec/issues"><img src="https://img.shields.io/github/issues/untamed-theory/vibesec" alt="GitHub issues"></a>
