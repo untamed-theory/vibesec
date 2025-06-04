@@ -31,11 +31,17 @@ VibeSec is an open-source project created by [Untamed Theory](https://untamed.cl
 Apply VibeSec to your project with a single command:
 
 ```bash
+# Auto-detect environment (defaults to Windsurf if detection fails)
 curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash
+
+# Force Cursor installation
+curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash -s -- --cursor
+
+# Force Windsurf installation
+curl -sL https://raw.githubusercontent.com/untamed-theory/vibesec/main/scripts/install.sh | bash -s -- --windsurf
 ```
 
-
-The installation script will automatically detect whether you're using Windsurf or Cursor and install the appropriate rules.
+The installation script will automatically detect whether you're using Windsurf or Cursor and install the appropriate rules. If detection fails in a non-interactive environment (like when piped from curl), it will default to Windsurf.
 
 ## 🛠️ Cautious Installation
 
