@@ -52,14 +52,12 @@ The installation script will automatically detect whether you're using Windsurf 
 Not feeling lucky? You can always install VibeSec manually. Here's how:
 
 ```bash
+# From the root of your project
 # Clone the repository
 git clone https://github.com/untamed-theory/vibesec.git
 
-# Navigate to the directory
-cd vibesec
-
 # Install the rules
-./scripts/install.sh
+./vibesecscripts/install.sh
 ```
 
 ## ✨ Features
