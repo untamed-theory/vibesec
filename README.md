@@ -94,31 +94,33 @@ Copy and paste the rules wherever and however you want. This is America after al
 
 ### 📋 Comprehensive Security Categories
 
-- **`vibesec-general`**: OWASP Top 10, secrets management, CORS configuration, rate limiting
-- **`vibesec-code`**: SQL injection prevention, XSS/CSRF protection, input validation patterns
-- **`vibesec-framework`**: Supabase authentication, React security, Next.js best practices
-- **`vibesec-ai`**: LLM prompt injection prevention, model security considerations
-- **`vibesec-supplychain`**: Dependency management, secure package selection, SBOM
+- **`frontend`**: CORS configuration, NextJS best practices, Supabase authentication, UI security
+- **`backend`**: Rate limiting, API security, server-side validation
+- **`database`**: SQL injection prevention, Supabase hardening, data access controls
+- **`infrastructure`**: Secrets management, configuration security, deployment safety
+- **`ai`**: LLM prompt injection prevention, model security considerations
+- **`supply-chain`**: Dependency management, secure package selection, SBOM
+- **`general`**: OWASP Top 10, cross-cutting security concerns
 
 ## 🗂️ Directory Structure
 
 ```
 vibesec/
-├── windsurf/            # Windsurf rules (.md)
-│   ├── vibesec-general/     # Universal security principles (OWASP, etc.)
-│   ├── vibesec-code/        # Language-specific security practices
-│   ├── vibesec-framework/   # Framework-specific security (React, Next.js, etc.)
-│   ├── vibesec-ai/          # LLM and AI-specific security concerns
-│   └── vibesec-supplychain/ # Dependencies and supply chain security
-├── cursor/              # Cursor rules (.mdc)
-│   ├── vibesec-general/     # Universal security principles (OWASP, etc.)
-│   ├── vibesec-code/        # Language-specific security practices
-│   ├── vibesec-framework/   # Framework-specific security (React, Next.js, etc.)
-│   ├── vibesec-ai/          # LLM and AI-specific security concerns
-│   └── vibesec-supplychain/ # Dependencies and supply chain security
+├── definitions/         # Canonical security rule definitions
+│   ├── frontend/           # Frontend security rules
+│   ├── backend/            # Backend & API security rules
+│   ├── database/           # Database security rules
+│   ├── infrastructure/     # Infrastructure & DevOps security rules
+│   ├── ai/                 # AI & LLM security rules
+│   ├── supply-chain/       # Supply chain security rules
+│   └── general/            # Cross-cutting security principles
+├── rules/               # Built rules for AI assistants
+│   ├── windsurf/           # Windsurf-formatted rules (.md)
+│   └── cursor/             # Cursor-formatted rules (.mdc)
 └── scripts/
-    └── install.sh        # Installation script
-```
+    ├── install.sh         # Installation script
+    └── build_rules.sh     # Builds rules from definitions
+````
 
 ## 👥 Contributing
 
@@ -132,8 +134,9 @@ Contributing to VibeSec is easy:
 2. Create your feature branch (`git checkout -b feature/amazing-rule`)
 3. Create your security rule with these guidelines:
    - All security rules start with the prefix `security-`
-   - For each rule, create both Windsurf (.md) and Cursor (.mdc) versions
+   - Create a single canonical rule in the appropriate `definitions/` directory
    - Include clear code examples showing both secure and insecure patterns
+   - Run `./scripts/build_rules.sh` to generate Windsurf and Cursor versions
 4. Commit your changes (`git commit -m 'Add amazing security rule'`)
 5. Push to the branch (`git push origin feature/amazing-rule`)
 6. Open a Pull Request

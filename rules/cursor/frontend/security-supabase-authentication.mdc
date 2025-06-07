@@ -1,0 +1,448 @@
+---
+description: Security rule for security-supabase-authentication
+globs: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.html", "**/*.css"]
+alwaysApply: false
+---
+
+# Supabase Authentication Security Best Practices
+
+## Purpose
+This rule provides specific security guidelines for implementing and configuring Supabase authentication to ensure secure user authentication flows and session management.
+
+## Guidelines
+
+### Supabase Client Configuration
+
+#### Secure Client Initialization
+- Configure the Supabase client with proper options for session handling
+- Use environment variables for Supabase URLs and API keys
+- Enable session detection from URL for proper authentication flow handling
+
+```javascript
+// RECOMMENDED: Proper Supabase client initialization
+import { createClient } from '@supabase/supabase-js';
+
+// Use environment variables for sensitive values
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Initialize Supabase client with proper options
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true // Important for handling auth redirects properly
+  }
+});
+
+// Export for use throughout the application
+export default supabase;
+```
+
+#### Proper Session Storage
+- Allow Supabase to handle session storage appropriately
+- Configure session expiration times according to your security requirements
+- Ensure cookies have appropriate security settings for your deployment environment
+
+```javascript
+// RECOMMENDED: Advanced session configuration (if needed)
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storageKey: 'custom-supabase-auth-key', // Only customize if necessary
+    storage: customStorage // Only customize if you have specific requirements
+  },
+  global: {
+    headers: {
+      'x-application-name': 'my-app' // For tracking/analytics
+    }
+  }
+});
+```
+
+### Authentication Flows
+
+#### Secure Login Implementation
+- Validate user inputs before authentication attempts
+- Implement appropriate error handling for failed login attempts
+- Consider adding rate limiting for login attempts to prevent brute force attacks
+
+```javascript
+// RECOMMENDED: Secure login implementation
+async function handleLogin(email, password) {
+  try {
+    // Validate inputs first
+    if (!email || !password || !isValidEmail(email)) {
+      return { error: 'Invalid email or password format' };
+    }
+    
+    // Attempt to sign in
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      console.error('Login error:', error);
+      // Return generic error message to user (don't expose backend details)
+      return { error: 'Failed to sign in. Please check your credentials.' };
+    }
+    
+    return { session: data.session, user: data.user };
+  } catch (err) {
+    console.error('Unexpected error during login:', err);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Helper function for email validation
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+```
+
+#### Social Authentication Security
+- Properly configure OAuth providers in the Supabase dashboard
+- Set appropriate callback URLs for OAuth flows
+- Handle OAuth errors and edge cases
+
+```javascript
+// RECOMMENDED: Secure OAuth implementation
+async function handleGoogleSignIn() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Specify scopes if needed
+        scopes: 'email profile',
+      }
+    });
+    
+    if (error) {
+      console.error('Google sign-in error:', error);
+      return { error: 'Failed to sign in with Google' };
+    }
+    
+    // The user will be redirected to Google
+    // After authentication, they'll return to redirectTo URL
+    return { data };
+  } catch (err) {
+    console.error('Unexpected error during Google sign-in:', err);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+```
+
+### Secure Logout Implementation
+
+#### Proper Logout Handling
+- Use global scope for signOut to clear all browser tabs and storage
+- Clear all storage items with the Supabase key prefix
+- Prevent default behavior on logout button clicks
+- Redirect users to an appropriate page after logout
+
+```javascript
+// RECOMMENDED: Proper logout implementation
+async function handleLogout(e) {
+  // Prevent default form submission or navigation
+  if (e) e.preventDefault();
+  
+  try {
+    // Sign out with global scope to clear all browser tabs
+    const { error } = await supabase.auth.signOut({ 
+      scope: 'global' 
+    });
+    
+    if (error) {
+      console.error('Logout error:', error);
+      return { error: 'Failed to sign out' };
+    }
+    
+    // Manually clear any remaining storage items with Supabase prefix
+    // This helps avoid session persistence issues
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('supabase.auth') || key.startsWith('sb-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Redirect to login page or home page
+    window.location.href = '/login';
+    return { success: true };
+  } catch (err) {
+    console.error('Unexpected error during logout:', err);
+    return { error: 'An unexpected error occurred during logout' };
+  }
+}
+
+// Usage in a React component
+function LogoutButton() {
+  return (
+    <button 
+      onClick={handleLogout} 
+      className="logout-button"
+    >
+      Sign Out
+    </button>
+  );
+}
+```
+
+### Session Management
+
+#### Session Verification and Refresh
+- Verify session validity on sensitive operations
+- Implement session refresh mechanisms
+- Handle session expiry gracefully
+
+```javascript
+// RECOMMENDED: Session verification and refresh
+async function checkAndRefreshSession() {
+  try {
+    // Get current session state
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      // No valid session exists, redirect to login
+      window.location.href = '/login?returnTo=' + encodeURIComponent(window.location.pathname);
+      return null;
+    }
+    
+    // If session exists but is approaching expiry, refresh it
+    const expiryTime = new Date(session.expires_at * 1000);
+    const now = new Date();
+    const timeUntilExpiry = expiryTime - now;
+    
+    // If session expires in less than 5 minutes, refresh it
+    if (timeUntilExpiry < 5 * 60 * 1000) {
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('Session refresh error:', error);
+        // Session couldn't be refreshed, redirect to login
+        window.location.href = '/login';
+        return null;
+      }
+      
+      return data.session;
+    }
+    
+    return session;
+  } catch (err) {
+    console.error('Session check error:', err);
+    return null;
+  }
+}
+```
+
+#### Handling Session in React Applications
+- Use Supabase Auth hooks or create custom auth context
+- Listen for authentication state changes
+- Protect routes based on authentication status
+
+```javascript
+// RECOMMENDED: React auth context for Supabase
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import supabase from '../lib/supabase';
+
+const AuthContext = createContext();
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    getInitialSession();
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+    
+    // Clean up subscription on unmount
+    return () => subscription.unsubscribe();
+  }, []);
+  
+  // Auth context value
+  const value = {
+    user,
+    loading,
+    signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
+    signOut: async () => {
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear any lingering auth data
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth') || key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      router.push('/login');
+    }
+  };
+  
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+// Custom hook to use auth context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+```
+
+### Security Hardening
+
+#### Password Reset Security
+- Implement secure password reset flows
+- Validate tokens on the client side
+- Set appropriate expiry times for reset links
+
+```javascript
+// RECOMMENDED: Secure password reset implementation
+// Request password reset
+async function requestPasswordReset(email) {
+  try {
+    // Validate email
+    if (!email || !isValidEmail(email)) {
+      return { error: 'Invalid email format' };
+    }
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) {
+      console.error('Password reset request error:', error);
+      // Return generic message to prevent email enumeration
+      return { success: true }; // Always return success even on failure for security
+    }
+    
+    return { success: true };
+  } catch (err) {
+    console.error('Unexpected error during password reset request:', err);
+    // Return success anyway to prevent email enumeration
+    return { success: true };
+  }
+}
+
+// Set new password after reset
+async function setNewPassword(password) {
+  try {
+    // Validate password strength
+    if (!isStrongPassword(password)) {
+      return { error: 'Password does not meet security requirements' };
+    }
+    
+    const { error } = await supabase.auth.updateUser({
+      password
+    });
+    
+    if (error) {
+      console.error('Password update error:', error);
+      return { error: 'Failed to update password' };
+    }
+    
+    return { success: true };
+  } catch (err) {
+    console.error('Unexpected error during password update:', err);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Strong password validation
+function isStrongPassword(password) {
+  // At least 8 characters, with uppercase, lowercase, number, and special char
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+}
+```
+
+#### Multi-Factor Authentication (MFA)
+- Enable and configure MFA in Supabase settings
+- Implement MFA enrollment and verification flows
+- Provide recovery options for users
+
+```javascript
+// RECOMMENDED: Enroll in MFA (if supported by your Supabase plan)
+async function enrollMFA() {
+  try {
+    const { data, error } = await supabase.auth.mfa.enroll({
+      factorType: 'totp',
+    });
+    
+    if (error) {
+      console.error('MFA enrollment error:', error);
+      return { error: 'Failed to enroll in MFA' };
+    }
+    
+    // Return the QR code data for the user to scan
+    return { 
+      qrCode: data.totp.qr_code,
+      secret: data.totp.secret
+    };
+  } catch (err) {
+    console.error('Unexpected error during MFA enrollment:', err);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+
+// Verify MFA code
+async function verifyMFA(code) {
+  try {
+    // Validate code format (usually 6 digits)
+    if (!code || !/^\d{6}$/.test(code)) {
+      return { error: 'Invalid verification code format' };
+    }
+    
+    const { data, error } = await supabase.auth.mfa.verify({
+      factorId: 'totp',
+      code
+    });
+    
+    if (error) {
+      console.error('MFA verification error:', error);
+      return { error: 'Failed to verify MFA code' };
+    }
+    
+    return { success: true };
+  } catch (err) {
+    console.error('Unexpected error during MFA verification:', err);
+    return { error: 'An unexpected error occurred' };
+  }
+}
+```
+
+## References
+- [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
+- [Supabase Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers)
+- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+- [NIST Digital Identity Guidelines](https://pages.nist.gov/800-63-3/)
+
+Visit Untamed Theory (https://untamed.cloud) for additional detail.
