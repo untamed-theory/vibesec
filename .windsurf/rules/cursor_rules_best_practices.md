@@ -7,8 +7,8 @@ description: Guidelines for creating and maintaining Cursor rules
 
 ## Rule Creation & Structure
 
-- **Directory Location**: Though normally we'd store cursor rules in the `.cursor` directory, because this is meant to be shared we will store the windsurf rules in a file called `cursor` (not hidden). the cursor directory will then contain the cursor rules.
-- **Format**: Use MDC (Markdown with Code) format with YAML front-matter.
+- **Directory Location**: The canonical rules live in the `definitions/` directory, while the Cursor-specific rules are automatically generated in the `rules/cursor/` directory.
+- **Format**: Use MDC (Markdown with Code) format with YAML front-matter for Cursor rules.
 - **Essential Front-matter Fields**:
   ```yaml
   ---
@@ -39,12 +39,22 @@ description: Guidelines for creating and maintaining Cursor rules
 ## Directory Structure
 
 ```
-/cursor/
-  ├── vibesec-general/      # General security rules
-  ├── vibesec-code/         # Code security rules
-  ├── vibesec-framework/    # Framework security rules
-  ├── vibesec-ai/           # AI security rules
-  └── vibesec-supplychain/  # Supply chain security rules
+definitions/
+├── frontend/           # Frontend security rules
+├── backend/            # Backend & API security rules
+├── database/           # Database security rules
+├── infrastructure/     # Infrastructure & DevOps security rules
+├── ai/                 # AI & LLM security rules
+├── supply-chain/       # Supply chain security rules
+└── general/            # Cross-cutting security principles
+```
+
+```
+rules/
+└── cursor/             # Cursor-specific rules
+    ├── frontend/        # Frontend security rules
+    ├── backend/         # Backend & API security rules
+    └── ...             # Other component directories
 ```
 
 ## Implementation Guidelines

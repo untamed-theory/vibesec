@@ -81,7 +81,7 @@ download_rules() {
     echo "Using git to clone the repository..."
     git clone --depth 1 --filter=blob:none --sparse https://github.com/${GITHUB_REPO}.git "$TEMP_DIR/vibesec"
     cd "$TEMP_DIR/vibesec"
-    git sparse-checkout set windsurf cursor
+    git sparse-checkout set definitions rules scripts
     cd - > /dev/null # Return to original directory silently
   else
     echo "Git not found, using curl to download..."
@@ -107,11 +107,11 @@ install_rules() {
   
   if [ "$env" -eq 1 ]; then
     echo "🔄 Installing security rules for Cursor..."
-    source_dir="$TEMP_DIR/vibesec/cursor"
+    source_dir="$TEMP_DIR/vibesec/rules/cursor"
     target_dir=".cursor/rules"
   else
     echo "🔄 Installing security rules for Windsurf..."
-    source_dir="$TEMP_DIR/vibesec/windsurf"
+    source_dir="$TEMP_DIR/vibesec/rules/windsurf"
     target_dir=".windsurf/rules"
   fi
   
@@ -120,8 +120,8 @@ install_rules() {
   
   # Copy all security rules to the target directory
   if [ -d "$source_dir" ]; then
-    # Search in all vibesec-* directories for security rules
-    find "$source_dir/vibesec-"* -type f -name "security-*.md*" -exec cp {} "$target_dir/" \;
+    # Search in all component directories for security rules
+    find "$source_dir"/* -type f -name "security-*.md*" -exec cp {} "$target_dir/" \;
     echo "✅ Security rules installed successfully!"
   else
     echo "❌ Error: Could not find rules directory: $source_dir"
