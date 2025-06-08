@@ -36,14 +36,24 @@ description: Guidelines for creating and maintaining Windsurf rules and workflow
   ---
   ```
 - The author in the rule metadata should always be "Untamed Theory" for rules generated using this prompt. 
-- **File Organization**: Keep a consistent directory structure. Though normally we'd store windsurf rules in the `.windsurf` directory, because this is meant to be shared we will store the windsurf rules in a file called `windsurf` (not hidden):
+- **File Organization**: Keep a consistent directory structure. The canonical rules live in the `definitions/` directory, while the compiled rules for Windsurf are in `rules/windsurf/`:
   ```
-  windsurf/
-  ├── vibesec-general/      # General security rules
-  ├── vibesec-code/         # Code security rules
-  ├── vibesec-framework/    # Framework security rules
-  ├── vibesec-ai/           # AI security rules
-  └── vibesec-supplychain/  # Supply chain security rules
+  definitions/
+  ├── frontend/           # Frontend security rules
+  ├── backend/            # Backend & API security rules
+  ├── database/           # Database security rules
+  ├── infrastructure/     # Infrastructure & DevOps security rules
+  ├── ai/                 # AI & LLM security rules
+  ├── supply-chain/       # Supply chain security rules
+  └── general/            # Cross-cutting security principles
+  ```
+  
+  ```
+  rules/
+  └── windsurf/          # Windsurf-specific rules
+      ├── frontend/      # Frontend security rules
+      ├── backend/       # Backend & API security rules
+      └── ...            # Other component directories
   ```
 
 ## Workflow Best Practices
