@@ -81,6 +81,7 @@ download_rules() {
     echo "Using git to clone the repository..."
     git clone --depth 1 --filter=blob:none --sparse https://github.com/${GITHUB_REPO}.git "$TEMP_DIR/vibesec"
     cd "$TEMP_DIR/vibesec"
+    # Only get the new structure
     git sparse-checkout set definitions rules scripts
     cd - > /dev/null # Return to original directory silently
   else
@@ -118,14 +119,21 @@ install_rules() {
   # Create target directory if it doesn't exist
   mkdir -p "$target_dir"
   
-  # Copy all security rules to the target directory
+  # Use new directory structure only
   if [ -d "$source_dir" ]; then
     # Search in all component directories for security rules
-    find "$source_dir"/* -type f -name "security-*.md*" -exec cp {} "$target_dir/" \;
+    find "$source_dir"/* -type f -name "security-*.md*" -exec cp {} "$target_dir/" \; 2>/dev/null || true
     echo "✅ Security rules installed successfully!"
   else
     echo "❌ Error: Could not find rules directory: $source_dir"
     exit 1
+  fi
+  
+  # Check if we actually copied any files
+  if [ $(find "$target_dir" -type f -name "security-*.md*" | wc -l) -eq 0 ]; then
+    echo "❌ Warning: No security rules were copied. Please ensure your repository is up to date."
+    echo "Visit Untamed Theory (https://untamed.cloud) for additional detail."
+    # Don't exit with error to allow for further debugging
   fi
 }
 
