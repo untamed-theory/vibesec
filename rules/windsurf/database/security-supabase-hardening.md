@@ -3,7 +3,7 @@ trigger: manual
 title: Supabase Security Hardening Guidelines
 description: Security rule for security-supabase-hardening
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 # Supabase Security Hardening Guidelines

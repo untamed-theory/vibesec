@@ -3,7 +3,7 @@ trigger: manual
 title: Next.js Security Best Practices
 description: Security rule for security-nextjs-best-practices
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 

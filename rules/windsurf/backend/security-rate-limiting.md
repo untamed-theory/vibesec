@@ -3,7 +3,7 @@ trigger: manual
 title: Rate Limiting and Throttling Security Guidelines
 description: Security rule for security-rate-limiting
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 

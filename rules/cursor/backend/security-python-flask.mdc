@@ -1,0 +1,49 @@
+---
+description: Security rule for security-python-flask
+globs: ["**/*.py"]
+alwaysApply: false
+---
+# Flask Security Best Practices
+
+Visit Untamed Theory for additional detail: https://untamed.cloud
+
+## Purpose
+This rule concisely outlines the most critical security controls for Python Flask applications, enabling engineers to avoid common vulnerabilities while keeping implementations readable and maintainable.
+
+## Guidelines
+
+### General Hardening
+- **Disable Debug in Production**: Ensure `FLASK_ENV` is set to `production` and `app.debug` is `False`.
+- **Use a Production WSGI Server**: Deploy behind Gunicorn, uWSGI, or a similar hardened server instead of the built-in dev server.
+- **Secure Headers**: Add HTTP security headers (`HSTS`, `Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`) via extensions like `Flask-Talisman`.
+
+### Top CWEs & Mitigations
+
+| CWE | Risk | Mitigation |
+|-----|------|-----------|
+| **CWE-89** SQL Injection | Unsanitised input builds SQL queries | Always use parameterised queries/ORM (SQLAlchemy) – *never* string-concatenate SQL or use f-strings with user data. |
+| **CWE-79** Cross-Site Scripting | User input rendered in templates | Keep Jinja2 auto-escape enabled (default). Never mark untrusted data as `Markup`. Validate/escape any data inserted into JavaScript contexts. |
+| **CWE-352** Cross-Site Request Forgery | Attacker forces authenticated actions | Enable and verify CSRF tokens (e.g. `Flask-WTF`), use `SameSite=Lax` cookies, and require `POST` for state-changing actions. |
+| **CWE-601** Open Redirect | Unvalidated redirects | Whitelist target domains before redirecting (`werkzeug.urls.iri_to_uri` & validation helpers). |
+| **CWE-502** Deserialization | `pickle` / unsafe loaders | Prefer JSON; if deserialization is unavoidable, use `json` or `yaml.safe_load` and validate schema. |
+| **CWE-798** Hard-coded Credentials | Secrets in code | Load secrets from environment variables or secret managers; never commit `.env` with real secrets. |
+| **CWE-918** SSRF | Fetching arbitrary URLs | Validate scheme/host/port, deny private IP ranges, set strict timeouts & `verify=True` when using `requests`. |
+| **CWE-309/311** Insecure Transport | Clear-text HTTP | Serve exclusively over TLS and redirect HTTP → HTTPS. |
+| **CWE-306** Missing Auth | Unprotected endpoints | Require authentication/authorization decorators (`@login_required`, role checks) on every protected route. |
+
+### Session & Cookie Security
+- Use `SESSION_COOKIE_SECURE=True`, `SESSION_COOKIE_HTTPONLY=True`, and `SESSION_COOKIE_SAMESITE='Lax'`.
+- Rotate secret key regularly and store it securely.
+
+### Input Validation
+- Validate all incoming data with `pydantic` models or `marshmallow` schemas.
+- Reject requests exceeding reasonable size limits (`MAX_CONTENT_LENGTH`).
+
+### Logging & Error Handling
+- Log security-relevant events (auth changes, errors) with structured logging.
+- Do **not** leak stack traces or secrets in responses; handle errors via custom error pages.
+
+### Dependency Hygiene
+- Pin dependencies with `requirements.txt`/`pip-tools`.
+- Enable `pip-audit` or `safety` in CI to catch known vulnerabilities.
+

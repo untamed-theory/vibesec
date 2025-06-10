@@ -3,7 +3,7 @@ trigger: manual
 title: OWASP Top 10 Security Guidelines
 description: Security rule for security-owasp-top10
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 
