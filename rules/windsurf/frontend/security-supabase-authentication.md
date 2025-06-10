@@ -3,7 +3,7 @@ trigger: manual
 title: Supabase Authentication Security Best Practices
 description: Security rule for security-supabase-authentication
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 

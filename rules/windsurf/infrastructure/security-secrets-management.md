@@ -3,7 +3,7 @@ trigger: manual
 title: Secrets Management Security Guidelines
 description: Security rule for security-secrets-management
 author: Untamed Theory
-date: 2025-06-07
+date: 2025-06-10
 version: 1.0
 ---
 
