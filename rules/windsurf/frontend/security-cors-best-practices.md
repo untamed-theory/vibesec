@@ -3,7 +3,7 @@ trigger: manual
 title: CORS Security Best Practices
 description: Security rule for security-cors-best-practices
 author: Untamed Theory
-date: 2025-06-10
+date: 2025-06-16
 version: 1.0
 ---
 

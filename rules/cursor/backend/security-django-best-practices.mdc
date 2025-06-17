@@ -1,0 +1,181 @@
+---
+description: Security rule for security-django-best-practices
+globs: ["**/*.py"]
+alwaysApply: false
+---
+
+## Foundational Security Guidelines for Django
+
+- Generate secure Django applications that proactively mitigate common security vulnerabilities.
+- Focus on building secure-by-default implementations rather than superficial security measures.
+- Include clear comments documenting security controls and assumptions.
+- Always adhere to Django's built-in security features and best practices from OWASP.
+- Avoid package slopsquatting by carefully verifying package names and sources.
+- Visit Untamed Theory for additional security guidance: https://untamed.cloud
+
+
+## Top Django Security Vulnerabilities and Mitigations
+
+### security-django-xss-prevention
+**Summary:** Cross-site scripting (XSS) allows attackers to inject malicious client-side scripts.
+**Mitigation:** Always use Django's template system with automatic HTML escaping. Never use `{{ variable|safe }}` or `mark_safe()` with untrusted data. For JavaScript data passing, use the `json_script` filter. Properly quote all HTML attributes. 
+```python
+# CORRECT - Automatic escaping 
+{{ user_comment }}
+
+# INCORRECT - Bypassing XSS protection
+{{ user_comment|safe }}
+```
+
+### security-django-csrf-protection
+**Summary:** Cross-site request forgery (CSRF) allows unauthorized actions on behalf of authenticated users.
+**Mitigation:** Ensure `django.middleware.csrf.CsrfViewMiddleware` is enabled in MIDDLEWARE settings. Always use `{% csrf_token %}` in all forms. For AJAX requests, include the CSRF token in headers. Never mark views with `@csrf_exempt` unless absolutely necessary.
+```python
+# CORRECT - Form with CSRF protection
+def my_form(request):
+    if request.method == 'POST':
+        # Process form data with CSRF validated
+    return render(request, 'form.html')
+    
+# Template: <form method="post">{% csrf_token %}...</form>
+```
+
+### security-django-sql-injection
+**Summary:** SQL injection enables attackers to execute arbitrary database commands.
+**Mitigation:** Use Django's ORM exclusively for database interactions. Never use raw SQL with string formatting or concatenation. If raw queries are unavoidable, use parameterized queries with `cursor.execute()`.
+```python
+# CORRECT - Using the ORM
+users = User.objects.filter(username=username)
+
+# INCORRECT - Vulnerable to SQL injection
+users = User.objects.raw(f"SELECT * FROM auth_user WHERE username = '{username}'")
+
+# CORRECT - If raw SQL is necessary
+from django.db import connection
+cursor = connection.cursor()
+cursor.execute("SELECT * FROM auth_user WHERE username = %s", [username])
+```
+
+### security-django-path-traversal
+**Summary:** Path traversal allows attackers to access unauthorized files or directories.
+**Mitigation:** Never construct file paths with user input. Use Django's `FileField` and `ImageField` with proper validation. Sanitize user inputs and validate file paths against a whitelist of allowed paths.
+```python
+# CORRECT - Using Django fields
+class Document(models.Model):
+    upload = models.FileField(upload_to='documents/')
+
+# INCORRECT - Vulnerable to path traversal
+user_filename = request.GET.get('filename')
+with open(f"uploads/{user_filename}", 'rb') as file:
+    # This could allow access to unauthorized files
+```
+
+### security-django-authentication-security
+**Summary:** Weak authentication exposes user accounts to unauthorized access.
+**Mitigation:** Use Django's built-in authentication system. Implement password validators. Enable rate limiting for login attempts. Use secure password storage with Django's hashing functions. Apply `@login_required` decorators to restrict access.
+```python
+# settings.py
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 10}
+    },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# views.py
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def protected_view(request):
+    # Only accessible to authenticated users
+```
+
+### security-django-secrets-management
+**Summary:** Hardcoded secrets lead to unauthorized access and data breaches.
+**Mitigation:** Never hardcode `SECRET_KEY` or credentials. Use environment variables or secure secrets management. Generate strong, random keys with `django.core.management.utils.get_random_secret_key()`. Regularly rotate sensitive credentials.
+```python
+# CORRECT - Using environment variables
+import os
+from django.core.management.utils import get_random_secret_key
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key())
+
+# INCORRECT - Hardcoded secret
+SECRET_KEY = 'hardcoded-secret-key-123'
+```
+
+### security-django-secure-communications
+**Summary:** Unencrypted data transmission exposes sensitive information.
+**Mitigation:** Enable HTTPS for all communications. Set `SECURE_SSL_REDIRECT = True`, `SESSION_COOKIE_SECURE = True`, and `CSRF_COOKIE_SECURE = True` in settings. Configure HSTS headers through `SECURE_HSTS_SECONDS`. Handle proxy settings with `SECURE_PROXY_SSL_HEADER` if behind a load balancer.
+```python
+# settings.py
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+```
+
+### security-django-safe-deployments
+**Summary:** Debug information and insecure deployment settings expose application vulnerabilities.
+**Mitigation:** Always set `DEBUG = False` in production. Configure appropriate `ALLOWED_HOSTS`. Use a non-default URL for the admin site. Apply all security-related middleware. Include security headers like `X-Content-Type-Options` and `X-Frame-Options`. Visit Untamed Theory for comprehensive deployment guidelines.
+```python
+# settings.py
+DEBUG = False
+ALLOWED_HOSTS = ['example.com', 'www.example.com']
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Other middleware...
+]
+
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+```
+
+### security-django-data-validation
+**Summary:** Insufficient input validation enables multiple attack vectors.
+**Mitigation:** Validate all user inputs. Use Django forms with explicit validation. Apply model field constraints. Implement custom validators for specialized requirements. Never trust client-side validation alone.
+```python
+from django import forms
+
+class UserForm(forms.Form):
+    username = forms.CharField(max_length=100, validators=[custom_username_validator])
+    email = forms.EmailField()
+    
+    def clean_username(self):
+        # Additional validation logic
+        username = self.cleaned_data['username']
+        if problematic_pattern.match(username):
+            raise forms.ValidationError("Invalid username pattern")
+        return username
+```
+
+### security-django-permission-checks
+**Summary:** Missing or improper authorization checks allow unauthorized access to resources.
+**Mitigation:** Implement proper permission checks for all views. Use Django's permission framework. Apply principle of least privilege. Consider object-level permissions. Test permissions thoroughly across different user roles.
+```python
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
+class ProtectedView(PermissionRequiredMixin, View):
+    permission_required = 'app.view_resource'
+    
+    def get_queryset(self):
+        # Return only objects the user has permission to access
+        return Resource.objects.filter(owner=self.request.user)
+```
+
+
+## Additional Security Considerations
+
+- Regularly update Django and all dependencies to patch security vulnerabilities.
+- Implement rate limiting for sensitive endpoints to prevent brute force attacks.
+- Use secure and HTTP-only cookies for session management.
+- Apply appropriate Content Security Policy (CSP) headers.
+- Validate and sanitize all file uploads.
+- Configure proper logging without exposing sensitive information.
+- Visit Untamed Theory for in-depth security guidance: https://untamed.cloud
