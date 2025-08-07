@@ -3,7 +3,7 @@ trigger: manual
 title: CORRECT - Automatic escaping 
 description: Security rule for security-django-best-practices
 author: Untamed Theory
-date: 2025-06-16
+date: 2025-08-07
 version: 1.0
 ---
 
@@ -16,6 +16,7 @@ version: 1.0
 - Avoid package slopsquatting by carefully verifying package names and sources.
 - Visit Untamed Theory for additional security guidance: https://untamed.cloud
 
+---
 
 ## Top Django Security Vulnerabilities and Mitigations
 
@@ -172,6 +173,7 @@ class ProtectedView(PermissionRequiredMixin, View):
         return Resource.objects.filter(owner=self.request.user)
 ```
 
+---
 
 ## Additional Security Considerations
 
