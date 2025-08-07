@@ -3,7 +3,7 @@ trigger: manual
 title: Flask Security Best Practices
 description: Security rule for security-python-flask
 author: Untamed Theory
-date: 2025-06-16
+date: 2025-08-07
 version: 1.0
 ---
 # Flask Security Best Practices
@@ -50,3 +50,5 @@ This rule concisely outlines the most critical security controls for Python Flas
 - Pin dependencies with `requirements.txt`/`pip-tools`.
 - Enable `pip-audit` or `safety` in CI to catch known vulnerabilities.
 
+---
+**Remember**: security is a process, not a checkbox. Regularly review code, update dependencies, and perform penetration tests.

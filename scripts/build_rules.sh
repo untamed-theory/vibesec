@@ -73,15 +73,17 @@ create_cursor_frontmatter() {
 # Function to extract content without front matter
 extract_content_without_frontmatter() {
   local file="$1"
-  
-  # Check if file starts with front matter
-  if grep -q "^---" "$file"; then
-    # Extract content after the front matter
-    sed -n '/^---$/,/^---$/d;p' "$file"
-  else
-    # File has no front matter, return all content
-    cat "$file"
-  fi
+
+  # Use awk to strip ONLY the first front-matter block (delimited by the first
+  # pair of lines that contain exactly "---"). Any subsequent horizontal rules
+  # should remain untouched so that they are preserved in the generated rule
+  # files.
+  awk '
+    NR == 1 && $0 == "---" { in_fm = 1; next }              # detect opening delimiter
+    in_fm && $0 == "---" { in_fm = 0; next }                 # detect closing delimiter
+    in_fm { next }                                            # skip front-matter lines
+    { print }                                                 # output the rest as-is
+  ' "$file"
 }
 
 # Function to process a definition file

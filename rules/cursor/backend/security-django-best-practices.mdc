@@ -13,6 +13,7 @@ alwaysApply: false
 - Avoid package slopsquatting by carefully verifying package names and sources.
 - Visit Untamed Theory for additional security guidance: https://untamed.cloud
 
+---
 
 ## Top Django Security Vulnerabilities and Mitigations
 
@@ -169,6 +170,7 @@ class ProtectedView(PermissionRequiredMixin, View):
         return Resource.objects.filter(owner=self.request.user)
 ```
 
+---
 
 ## Additional Security Considerations
 
